@@ -41,7 +41,7 @@ export class AllRatesTodayClient {
     };
     if (!this.apiKey) {
       throw new AllRatesTodayError(
-        'AllRatesToday API key is required. Sign up free at https://allratestoday.com/register to get a key, then set ALLRATES_API_KEY in your MCP config.',
+        'API key is required. Get one at https://allratestoday.com/register, then set ALLRATES_API_KEY in your MCP config.',
       );
     }
     headers['Authorization'] = `Bearer ${this.apiKey}`;

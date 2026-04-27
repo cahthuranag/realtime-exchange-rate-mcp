@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.cahthuranag/realtime-exchange-rate-mcp",
-  "description": "Real-time currency exchange rates, historical data, and multi-currency lookups via AllRatesToday.",
+  "description": "Real-time currency exchange rates, historical data, and multi-currency lookups for MCP clients.",
   "repository": {
     "url": "https://github.com/cahthuranag/realtime-exchange-rate-mcp",
     "source": "github"
@@ -16,7 +16,7 @@
       "environmentVariables": [
         {
           "name": "ALLRATES_API_KEY",
-          "description": "Your AllRatesToday API key (art_live_xxxxx). Required for all tools. Sign up free at https://allratestoday.com/register.",
+          "description": "API key (art_live_xxxxx). Required for all tools. Get one free at https://allratestoday.com/register.",
           "isRequired": true,
           "isSecret": true
         },

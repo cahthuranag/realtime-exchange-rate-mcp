@@ -18,7 +18,7 @@ const tools = [
   {
     name: 'get_exchange_rate',
     description:
-      'Get the current mid-market exchange rate between two currencies. Returns a single rate number. Requires a free AllRatesToday API key (ALLRATES_API_KEY) — sign up at https://allratestoday.com/register.',
+      'Get the current mid-market exchange rate between two currencies. Returns a single rate number. Requires API key (ALLRATES_API_KEY).',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -32,7 +32,7 @@ const tools = [
   {
     name: 'get_historical_rates',
     description:
-      'Get historical exchange-rate data points for a currency pair over a period. Periods: 1d (hourly), 7d (daily), 30d (daily), 1y (weekly). Requires an AllRatesToday API key (ALLRATES_API_KEY).',
+      'Get historical exchange-rate data points for a currency pair over a period. Periods: 1d (hourly), 7d (daily), 30d (daily), 1y (weekly). Requires API key (ALLRATES_API_KEY).',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -52,7 +52,7 @@ const tools = [
   {
     name: 'get_rates_authenticated',
     description:
-      'Get rates with higher limits and multi-target support. Requires an AllRatesToday API key (ALLRATES_API_KEY). Supports comma-separated targets like "EUR,GBP,JPY".',
+      'Get rates with higher limits and multi-target support. Requires API key (ALLRATES_API_KEY). Supports comma-separated targets like "EUR,GBP,JPY".',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -79,7 +79,7 @@ const tools = [
   {
     name: 'list_currencies',
     description:
-      'List all supported currencies with code, name, and symbol. Requires a free AllRatesToday API key (ALLRATES_API_KEY) — sign up at https://allratestoday.com/register. Cached 24h upstream.',
+      'List all supported currencies with code, name, and symbol. Requires API key (ALLRATES_API_KEY). Cached 24h upstream.',
     inputSchema: { type: 'object', additionalProperties: false, properties: {} },
   },
 ] as const;
@@ -95,9 +95,9 @@ async function main() {
     console.error(
       [
         '',
-        '  AllRatesToday MCP server requires an API key.',
+        '  This MCP server requires an API key.',
         '',
-        '  1. Sign up free at https://allratestoday.com/register (300 requests/month, no card required)',
+        '  1. Get a free key at https://allratestoday.com/register',
         '  2. Copy your API key from the dashboard',
         '  3. Set ALLRATES_API_KEY in your MCP client config:',
         '',
@@ -118,7 +118,7 @@ async function main() {
   });
 
   const server = new Server(
-    { name: 'allratestoday-mcp', version: '0.3.1' },
+    { name: 'realtime-exchange-rate-mcp', version: '0.3.2' },
     { capabilities: { tools: {} } },
   );
 

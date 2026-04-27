@@ -1,4 +1,4 @@
-# AllRatesToday MCP Server
+# Realtime Exchange Rate MCP Server
 
 [![npm version](https://img.shields.io/npm/v/@allratestoday/mcp-server.svg?style=flat-square)](https://www.npmjs.com/package/@allratestoday/mcp-server)
 [![npm downloads](https://img.shields.io/npm/dm/@allratestoday/mcp-server.svg?style=flat-square)](https://www.npmjs.com/package/@allratestoday/mcp-server)
@@ -9,7 +9,7 @@ English | [简体中文](./README-zh-CN.md)
 
 > Give your AI coding assistant a live window into the foreign-exchange market.
 
-A Model Context Protocol server that lets **Claude Code**, **Cursor**, **Claude Desktop**, **Windsurf**, and any other MCP-compatible client fetch real-time currency rates, historical data, and multi-currency lookups from the [AllRatesToday API](https://allratestoday.com).
+A Model Context Protocol server that lets **Claude Code**, **Cursor**, **Claude Desktop**, **Windsurf**, and any other MCP-compatible client fetch real-time currency rates, historical data, and multi-currency lookups.
 
 After installation, your assistant can answer questions like:
 
@@ -35,7 +35,6 @@ After installation, your assistant can answer questions like:
 - [Verify it works](#verify-it-works)
 - [Tools reference](#tools-reference)
 - [Environment variables](#environment-variables)
-- [Plans and limits](#plans-and-limits)
 - [Troubleshooting](#troubleshooting)
 - [Error reference](#error-reference)
 - [FAQ](#faq)
@@ -52,7 +51,6 @@ After installation, your assistant can answer questions like:
 |---|---|
 | **Currencies** | 150+ ISO 4217 codes, all major and most exotics |
 | **Update frequency** | Mid-market rates refresh every ~60 seconds |
-| **Data source** | Tier-1 financial data providers (Reuters / Refinitiv-class) |
 | **Historical depth** | Up to 1 year via `1d` / `7d` / `30d` / `1y` granularity |
 | **Tools exposed** | 4 — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies` |
 | **Transport** | stdio (subprocess), MCP 1.x compatible |
@@ -62,14 +60,14 @@ After installation, your assistant can answer questions like:
 
 ## Get an API key (required)
 
-The server **will not start** without a valid `ALLRATES_API_KEY`. The free plan is enough for development and personal use — **300 requests/month, no credit card**.
+The server **will not start** without a valid `ALLRATES_API_KEY`. Rates are served by [AllRatesToday](https://allratestoday.com); a free key is enough for development and personal use.
 
-1. Register at [allratestoday.com/register](https://allratestoday.com/register) — 30 seconds
+1. Register at [allratestoday.com/register](https://allratestoday.com/register)
 2. Verify your email
 3. Copy your key from the dashboard (format: `art_live_xxxxx`)
 4. Use it as `ALLRATES_API_KEY` in the configs below
 
-If you forget, the server prints clear registration instructions on stderr and exits with code 1.
+If the key is missing, the server prints clear registration instructions on stderr and exits with code 1.
 
 ---
 
@@ -205,7 +203,7 @@ After configuring your client, test in this order:
 
 ## Tools reference
 
-All four tools require `ALLRATES_API_KEY`.
+All four tools require an API key.
 
 ### `get_exchange_rate`
 
@@ -334,26 +332,13 @@ You set these in your MCP client's config (in the `env` block) — not in your s
 
 ---
 
-## Plans and limits
-
-| Plan | Monthly requests | Price |
-|---|---|---|
-| **Free** | 300 | €0 |
-| **Small** | 5,000 | €4.99/mo |
-| **Medium** | 10,000 | €9.99/mo |
-| **Large** | 100,000 | €49.99/mo |
-
-Full pricing at [allratestoday.com/pricing](https://allratestoday.com/pricing). All plans include the same currency coverage and historical depth — only the request quotas differ.
-
----
-
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Client shows "MCP server failed to start" or red dot | `ALLRATES_API_KEY` not set or invalid | Verify the key in your client config; check it matches the dashboard |
-| Tools show but every call returns "Invalid AllRatesToday API key" | Key is malformed (missing prefix, truncated, or revoked) | Copy a fresh key from the dashboard |
-| Tools return "AllRatesToday API quota exceeded" | Free-tier 300 req/month limit hit | Wait until next month or upgrade plan |
+| Tools show but every call returns "Invalid API key" | Key is malformed (missing prefix, truncated, or revoked) | Copy a fresh key from the dashboard |
+| Tools return "API quota exceeded" | Plan request limit hit | Wait until next month or upgrade plan |
 | Historical tool returns "Bad request" | Invalid period or unknown currency code | Period must be `1d`/`7d`/`30d`/`1y`; codes must be 3 letters |
 | Server starts but tools never appear in client | Client didn't reload after config change | Fully quit (not just close) and reopen the client |
 | `npx` runs but hangs forever | The server is waiting for an MCP client to connect — this is normal when run from a shell | Don't run from a shell; let your MCP client launch it |
@@ -378,9 +363,9 @@ The server maps API errors to clear, actionable messages.
 |---|---|---|
 | 200 | Success | (rate returned) |
 | 400 | Bad request — usually unknown currency code | `Bad request — possibly an unknown currency code` |
-| 401 | Invalid or missing API key | `Invalid AllRatesToday API key` |
-| 429 | Quota exceeded | `AllRatesToday API quota exceeded` |
-| 5xx | Server-side issue at allratestoday.com | `HTTP 5xx — <upstream message>` |
+| 401 | Invalid or missing API key | `Invalid API key` |
+| 429 | Quota exceeded | `API quota exceeded` |
+| 5xx | Upstream server-side issue | `HTTP 5xx — <upstream message>` |
 
 The LLM will surface these messages in its response, so a user prompt that hits a 429 results in the assistant saying *"the API quota has been exceeded — please try again next month or upgrade your plan."*
 
@@ -388,23 +373,20 @@ The LLM will surface these messages in its response, so a user prompt that hits 
 
 ## FAQ
 
-**Is the free plan really enough for normal use?**
-Yes for personal/dev use. 300 requests/month covers ~10 questions per day. Heavy interactive use, multiple chat sessions per day, or running the server in production should consider the paid tiers.
-
 **Do you store my conversation or query data?**
-No. Only your API key and the request parameters (source, target, period, time) are sent to allratestoday.com — never the LLM's conversation context, sheet contents, or anything else.
+No. Only your API key and the request parameters (source, target, period, time) are sent to the upstream API — never the LLM's conversation context, sheet contents, or anything else.
 
 **What happens to my API key?**
-It's only sent as a `Bearer` token in the `Authorization` header on requests to the AllRatesToday API. It's never logged or transmitted elsewhere.
+It's only sent as a `Bearer` token in the `Authorization` header on requests to the upstream API. It's never logged or transmitted elsewhere.
 
 **Why is my historical request slow on first call?**
-Cold-start of `npx` (first run downloads the package) plus the initial AllRatesToday cache miss. Subsequent calls are fast (<200ms typically).
+Cold-start of `npx` (first run downloads the package) plus an initial upstream cache miss. Subsequent calls are fast (<200ms typically).
 
 **Can I run this without npm/Node?**
 Not currently — Node ≥18 is required. We've considered a standalone binary; if that matters to you, open an issue.
 
 **Is there a self-hosted option?**
-Yes, set `ALLRATES_BASE_URL` to your own AllRatesToday instance. Contact support@allratestoday.com for self-hosted licensing.
+Yes, set `ALLRATES_BASE_URL` to point to your own instance.
 
 **Does this work with ChatGPT?**
 The Anthropic MCP standard works with any MCP-compatible client. ChatGPT Desktop has experimental MCP support; check OpenAI's docs for current status.
@@ -429,7 +411,7 @@ To watch and rebuild on changes during development:
 npm run dev
 ```
 
-To test against a local AllRatesToday instance:
+To test against a local instance:
 
 ```bash
 ALLRATES_BASE_URL=http://localhost:8080/api ALLRATES_API_KEY=test_key node dist/index.js
@@ -440,7 +422,7 @@ ALLRATES_BASE_URL=http://localhost:8080/api ALLRATES_API_KEY=test_key node dist/
 ```
 src/
 ├── index.ts      # MCP server, tool registration, request handlers
-└── client.ts     # HTTP client for AllRatesToday API + error mapping
+└── client.ts     # HTTP client + error mapping
 dist/             # Compiled JS (gitignored)
 server.json       # MCP registry manifest
 package.json      # npm metadata, dependencies, scripts
@@ -451,7 +433,7 @@ package.json      # npm metadata, dependencies, scripts
 Issues and PRs welcome at [github.com/cahthuranag/realtime-exchange-rate-mcp](https://github.com/cahthuranag/realtime-exchange-rate-mcp). Before opening a PR:
 
 1. `npm run build` should succeed with no errors
-2. Test against a real AllRatesToday API key (set in `ALLRATES_API_KEY`)
+2. Test against a real API key (set in `ALLRATES_API_KEY`)
 3. Update tool descriptions in `src/index.ts` if you change tool behavior
 4. Update this README's "Tools reference" section if you add or rename a tool
 
@@ -469,10 +451,8 @@ See [GitHub Releases](https://github.com/cahthuranag/realtime-exchange-rate-mcp/
 
 ## Support
 
-- **API issues**: [support@allratestoday.com](mailto:support@allratestoday.com)
 - **Bug reports**: [github.com/cahthuranag/realtime-exchange-rate-mcp/issues](https://github.com/cahthuranag/realtime-exchange-rate-mcp/issues)
 - **MCP questions**: [modelcontextprotocol.io](https://modelcontextprotocol.io) — protocol docs
-- **Status / uptime**: [allratestoday.com](https://allratestoday.com) (status page in development)
 
 ---
 
